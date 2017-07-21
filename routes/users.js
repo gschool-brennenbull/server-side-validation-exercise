@@ -3,6 +3,8 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('../knex');
+const ev = require('express-validation');
+const validations = require('../validation/users');
 
 router.get('/' , (req, res, next) => {
   knex('users')
@@ -15,13 +17,12 @@ router.get('/' , (req, res, next) => {
     });
 });
 
-router.post('/' , (req, res, next) => {
+router.post('/', ev(validations.post) ,(req, res, next)=> {
   let firstName = req.body.users.firstName;
   let lastName = req.body.users.lastName;
   let username = req.body.users.username;
   let email = req.body.users.email;
   let phone = req.body.users.phone;
-
   knex('users')
     .insert({
       firstname: firstName,
@@ -32,6 +33,7 @@ router.post('/' , (req, res, next) => {
     })
     .returning(['firstname', 'lastname', 'username','phone','email'])
     .then((results) => {
+      console.log(results);
       res.send(results[0]);
     })
     .catch((err) => {
